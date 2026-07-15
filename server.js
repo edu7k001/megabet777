@@ -190,6 +190,8 @@ function criarTabelas() {
 
             const jogos = [
                 ['fortune-ox', 96.75, 5, 1000],
+                ['fortune-tiger', 96.75, 5, 1000],
+                ['fortune-mouse', 96.75, 5, 1000],
                 ['thimbles', 97, 5, 1000],
                 ['mines', 97, 5, 1000],
                 ['crash', 95, 5, 1000],
@@ -722,6 +724,41 @@ function processarAposta(userId, gameName, betAmount, winAmountBase, rtpGlobal, 
         );
     });
 }
+
+// Slots 3x3 originais: Tiger, Ox e Mouse
+app.post('/api/game/slot', (req, res) => {
+    const userId = Number(req.body.userId);
+    const betAmount = Number(req.body.betAmount);
+    const gameName = String(req.body.game || '');
+    const configs = {
+        'fortune-tiger': ['🐯','🪙','🧧','🍊','💰','🏮'],
+        'fortune-ox': ['🐂','🪙','🧧','🍊','💰','🧨'],
+        'fortune-mouse': ['🐭','🧀','🪙','🧧','💰','🏮']
+    };
+    if (!userId || !Number.isFinite(betAmount) || betAmount < 5 || !configs[gameName]) {
+        return res.status(400).json({ error: 'Aposta inválida' });
+    }
+    const symbols = configs[gameName];
+    db.get('SELECT rtp, min_bet, max_bet, active FROM games WHERE name = ?', [gameName], (err, game) => {
+        const cfg = game || {rtp: 96, min_bet: 5, max_bet: 1000, active: 1};
+        if (!cfg.active) return res.status(400).json({ error: 'Jogo indisponível' });
+        if (betAmount < Number(cfg.min_bet) || betAmount > Number(cfg.max_bet)) return res.status(400).json({ error: 'Valor fora dos limites do jogo' });
+        const grid = Array.from({length:3},()=>Array.from({length:3},()=>symbols[Math.floor(Math.random()*symbols.length)]));
+        let multiplier = 0;
+        for (let row=0; row<3; row++) {
+            if (grid[0][row] === grid[1][row] && grid[1][row] === grid[2][row]) {
+                multiplier += grid[0][row] === symbols[0] ? 12 : 4;
+            }
+        }
+        if (grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) multiplier += 5;
+        if (grid[0][2] === grid[1][1] && grid[1][1] === grid[2][0]) multiplier += 5;
+        const winBase = betAmount * multiplier;
+        processarAposta(userId, gameName, betAmount, winBase, Number(cfg.rtp || 96), (error, data) => {
+            if (error) return res.status(400).json({ error: String(error) });
+            res.json({success:true, grid, multiplier, winAmount:data.winAmount, newBalance:data.newBalance});
+        });
+    });
+});
 
 // Fortune Ox
 app.post('/api/game/fortune-ox', (req, res) => {
