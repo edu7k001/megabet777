@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login – MEGABET777</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #1a0000, #4a0000);
+            color: #ffd700;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .lanterna {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 80px;
+            background: linear-gradient(145deg, #c49a1f, #ffd700);
+            border-radius: 25px 25px 5px 5px;
+            box-shadow: 0 0 20px #ffd700;
+            animation: balanco 3s infinite;
+        }
+        .lanterna::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 50%;
+        }
+        .lanterna::after {
+            content: '福';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            color: #8b0000;
+            font-weight: bold;
+        }
+        .lanterna.dir { left: auto; right: 20px; }
+        @keyframes balanco {
+            0%,100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .login-card {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            border: 3px solid #ffd700;
+            border-radius: 40px;
+            padding: 50px;
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255,215,0,0.3);
+            z-index: 10;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #ffd700;
+        }
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            font-size: 1rem;
+        }
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 20px #ffd700;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #ffd700;
+            border: none;
+            border-radius: 50px;
+            color: #1a0000;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ffa500;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px #ffd700;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 50px;
+            text-align: center;
+            display: none;
+        }
+        .message.error {
+            display: block;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid #f00;
+            color: #f00;
+        }
+        .message.success {
+            display: block;
+            background: rgba(0,255,0,0.2);
+            border: 1px solid #0f0;
+            color: #0f0;
+        }
+        .dragon-bg {
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            font-size: 15rem;
+            color: #ffd700;
+            opacity: 0.1;
+            z-index: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="lanterna"></div>
+    <div class="lanterna dir"></div>
+    <div class="dragon-bg"><i class="fas fa-dragon"></i></div>
+
+    <div class="login-card">
+        <h1><i class="fas fa-crown"></i> ADMIN</h1>
+        <div class="input-group">
+            <label>E-mail</label>
+            <input type="email" id="email" value="edu7k001@gmail.com">
+        </div>
+        <div class="input-group">
+            <label>Senha</label>
+            <input type="password" id="password" value="@Carlos1998">
+        </div>
+        <button onclick="login()">ENTRAR</button>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msgDiv = document.getElementById('message');
+
+            try {
+                const res = await fetch('/api/admin-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('admin', JSON.stringify(data.admin));
+                    msgDiv.className = 'message success';
+                    msgDiv.innerHTML = '✅ Login realizado! Redirecionando...';
+                    setTimeout(() => window.location.href = '/admin.html', 1000);
+                } else {
+                    msgDiv.className = 'message error';
+                    msgDiv.innerHTML = '❌ ' + (data.error || 'Erro no login');
+                }
+            } catch (e) {
+                msgDiv.className = 'message error';
+                msgDiv.innerHTML = '❌ Erro de conexão';
+            }
+        }
+    </script>
+</body>
+</html>

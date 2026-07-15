@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – MEGABET777</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #1a0000, #4a0000);
+            color: #ffd700;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-card {
+            background: rgba(0,0,0,0.85);
+            border: 3px solid #ffd700;
+            border-radius: 40px;
+            padding: 40px;
+            width: 400px;
+            max-width: 90%;
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #ffd700; }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            background: transparent;
+            color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #ffd700;
+            border: none;
+            border-radius: 50px;
+            color: #1a0000;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .message { margin-top: 20px; padding: 10px; border-radius: 10px; display: none; }
+        .message.error { display: block; background: rgba(255,0,0,0.2); border: 1px solid #f00; color: #f00; }
+        .message.success { display: block; background: rgba(0,255,0,0.2); border: 1px solid #0f0; color: #0f0; }
+        .links { margin-top: 20px; text-align: center; }
+        .links a { color: #ffd700; }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="login-card">
+        <h1><i class="fas fa-key"></i> LOGIN</h1>
+        <div class="input-group">
+            <label>E-mail</label>
+            <input type="email" id="email" placeholder="seu@email.com">
+        </div>
+        <div class="input-group">
+            <label>Senha</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <button onclick="login()">ENTRAR</button>
+        <div id="message" class="message"></div>
+        <div class="links">
+            <a href="/register.html">Criar conta</a> | <a href="/">Voltar</a>
+        </div>
+    </div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msgDiv = document.getElementById('message');
+
+            if (!email || !password) {
+                msgDiv.className = 'message error';
+                msgDiv.innerHTML = '❌ Preencha todos os campos';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    msgDiv.className = 'message success';
+                    msgDiv.innerHTML = '✅ Login realizado! Redirecionando...';
+                    setTimeout(() => window.location.href = data.redirect || '/dashboard.html', 1000);
+                } else {
+                    msgDiv.className = 'message error';
+                    msgDiv.innerHTML = '❌ ' + (data.error || 'Erro no login');
+                }
+            } catch (e) {
+                msgDiv.className = 'message error';
+                msgDiv.innerHTML = '❌ Erro de conexão';
+            }
+        }
+    </script>
+</body>
+</html>

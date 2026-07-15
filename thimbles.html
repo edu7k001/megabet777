@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thimbles - MEGABET777</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #1a0000, #3a0000);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ffd700;
+            border-radius: 60px;
+            padding: 15px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .balance {
+            background: #000;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            padding: 10px 30px;
+            color: #ffd700;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #ffd700;
+            border-radius: 60px;
+            padding: 40px 20px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        }
+
+        h1 {
+            color: #ffd700;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ffd700;
+        }
+
+        .arena {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+            perspective: 1000px;
+        }
+
+        .cup {
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(180deg, #c0392b, #7f1d1d);
+            border-radius: 75px 75px 20px 20px;
+            box-shadow: 0 15px 0 #4a0000, 0 20px 20px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 15px;
+            font-size: 2rem;
+            color: #ffd700;
+            border: 2px solid #ffd700;
+        }
+
+        .cup::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 10px;
+            right: 10px;
+            height: 15px;
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        .cup:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 30px #ffd700;
+        }
+
+        .cup.selected {
+            border: 4px solid #ffa500;
+            box-shadow: 0 0 30px orange;
+            transform: scale(1.05);
+        }
+
+        .ball {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px gold;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .ball.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Animação de embaralhamento */
+        .shuffling .cup {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        input {
+            padding: 15px 25px;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffd700;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 200px;
+        }
+
+        button {
+            padding: 15px 40px;
+            background: #ffd700;
+            border: none;
+            border-radius: 50px;
+            color: #1a0000;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 0 #b8860b;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px #ffd700;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 0 #b8860b;
+        }
+
+        .info {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin: 20px 0;
+            min-height: 2.5rem;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #ffd700;
+        }
+
+        .win {
+            color: #00ff00;
+        }
+
+        .lose {
+            color: #ff4444;
+        }
+
+        @media (max-width: 768px) {
+            .cup {
+                width: 100px;
+                height: 140px;
+            }
+            .ball {
+                width: 30px;
+                height: 30px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🎩 THIMBLES</div>
+        <div class="balance" id="balance">R$ 0,00</div>
+    </div>
+
+    <div class="game-container">
+        <h1>ONDE ESTÁ A BOLINHA?</h1>
+
+        <div class="arena" id="arena">
+            <div class="cup" id="cup0" data-index="0">
+                <div class="ball hidden" id="ball0"></div>
+            </div>
+            <div class="cup" id="cup1" data-index="1">
+                <div class="ball hidden" id="ball1"></div>
+            </div>
+            <div class="cup" id="cup2" data-index="2">
+                <div class="ball hidden" id="ball2"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="number" id="betAmount" min="5" value="10" step="5" placeholder="Valor">
+            <button id="startBtn" onclick="startGame()">APOSTAR</button>
+        </div>
+
+        <div class="info" id="info">Clique em um copo após o embaralhamento</div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '/login.html';
+
+        // Elementos DOM
+        const arena = document.getElementById('arena');
+        const cups = document.querySelectorAll('.cup');
+        const balls = document.querySelectorAll('.ball');
+        const balanceEl = document.getElementById('balance');
+        const infoEl = document.getElementById('info');
+        const resultEl = document.getElementById('result');
+        const startBtn = document.getElementById('startBtn');
+        const betInput = document.getElementById('betAmount');
+
+        // Estado do jogo
+        let currentBet = 0;
+        let gameActive = false;
+        let shuffleInterval = null;
+        let currentPositions = [0, 1, 2]; // Posição real de cada copo (índice do copo físico)
+        let ballPosition = 0; // Índice do copo onde a bola está atualmente (0,1,2)
+        let selectedCup = null;
+        let gameResult = null;
+
+        // Atualiza saldo
+        async function updateBalance() {
+            try {
+                const res = await fetch(`/api/user/${user.id}/balance`);
+                const data = await res.json();
+                user.balance = data.balance || 0;
+                user.bonus_balance = data.bonus_balance || 0;
+                balanceEl.innerText = `R$ ${(user.balance + user.bonus_balance).toFixed(2)}`;
+            } catch (e) {
+                console.error('Erro ao atualizar saldo', e);
+            }
+        }
+        updateBalance();
+
+        // Reseta o jogo visualmente
+        function resetGame() {
+            if (shuffleInterval) clearInterval(shuffleInterval);
+            arena.classList.remove('shuffling');
+            balls.forEach(b => b.classList.add('hidden'));
+            cups.forEach(c => c.classList.remove('selected'));
+            cups.forEach((cup, i) => {
+                cup.style.transform = '';
+            });
+            currentPositions = [0, 1, 2];
+            ballPosition = 0;
+            selectedCup = null;
+            gameActive = false;
+            resultEl.innerHTML = '';
+        }
+
+        // Função para mover um copo para uma posição (usando transform)
+        function moveCup(cupIndex, targetX) {
+            const cup = cups[cupIndex];
+            cup.style.transform = `translateX(${targetX}px)`;
+        }
+
+        // Função de embaralhamento: troca as posições dos copos aleatoriamente várias vezes
+        function shuffleCups(callback) {
+            let steps = 0;
+            const totalSteps = 10; // número de trocas
+            arena.classList.add('shuffling');
+            infoEl.innerText = 'Embaralhando...';
+
+            // Posições iniciais dos copos (em px, baseado no layout)
+            const cupWidth = cups[0].offsetWidth;
+            const gap = 30; // mesmo gap do CSS
+            const basePositions = [0, cupWidth + gap, 2 * (cupWidth + gap)];
+
+            shuffleInterval = setInterval(() => {
+                // Escolhe dois copos aleatórios para trocar de posição
+                let a = Math.floor(Math.random() * 3);
+                let b = Math.floor(Math.random() * 3);
+                while (a === b) b = Math.floor(Math.random() * 3);
+
+                // Troca as posições no array currentPositions
+                [currentPositions[a], currentPositions[b]] = [currentPositions[b], currentPositions[a]];
+
+                // Move os copos para as novas posições
+                cups.forEach((cup, i) => {
+                    const targetIndex = currentPositions[i];
+                    cup.style.transform = `translateX(${basePositions[targetIndex] - basePositions[i]}px)`;
+                });
+
+                steps++;
+                if (steps >= totalSteps) {
+                    clearInterval(shuffleInterval);
+                    arena.classList.remove('shuffling');
+                    infoEl.innerText = 'Escolha um copo!';
+                    // A bola está no copo definido por ballPosition (que será definido pelo backend)
+                    // Por enquanto, não mostramos a bola
+                    gameActive = true;
+                    callback();
+                }
+            }, 200);
+        }
+
+        // Inicia o jogo (aposta)
+        async function startGame() {
+            if (gameActive) return;
+            const bet = parseFloat(betInput.value);
+            if (bet < 5) {
+                alert('Aposta mínima: R$5');
+                return;
+            }
+            const total = (user.balance || 0) + (user.bonus_balance || 0);
+            if (total < bet) {
+                alert('Saldo insuficiente');
+                return;
+            }
+            currentBet = bet;
+            resultEl.innerHTML = '';
+
+            // 1. Primeiro, mostra a bolinha sendo colocada sob um copo (por exemplo, o copo do meio)
+            resetGame(); // garante que tudo esteja limpo
+            infoEl.innerText = 'A bolinha está sendo colocada...';
+            // Mostra a bolinha no copo do meio (índice 1) por 1.5 segundos
+            balls[1].classList.remove('hidden');
+            // Aguarda 1.5 segundos, depois esconde a bolinha e começa o embaralhamento
+            setTimeout(() => {
+                balls[1].classList.add('hidden');
+                // Agora inicia o embaralhamento
+                shuffleCups(() => {
+                    // Ativa os cliques nos copos
+                    cups.forEach(cup => {
+                        cup.onclick = handleCupClick;
+                    });
+                });
+            }, 1500);
+        }
+
+        // Quando o usuário clica em um copo
+        async function handleCupClick(event) {
+            if (!gameActive) return;
+            const cup = event.currentTarget;
+            const choice = parseInt(cup.dataset.index);
+
+            // Desabilita cliques durante o processamento
+            cups.forEach(c => c.onclick = null);
+            gameActive = false;
+            infoEl.innerText = 'Verificando...';
+
+            try {
+                const res = await fetch('/api/game/thimbles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        betAmount: currentBet,
+                        escolha: choice
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error);
+                    resetGame();
+                    return;
+                }
+
+                // Atualiza saldo
+                user.balance = data.newBalance; // backend retorna newBalance
+                balanceEl.innerText = `R$ ${data.newBalance.toFixed(2)}`;
+
+                // Revela a bola no copo correto
+                ballPosition = data.posicaoCorreta;
+                balls[ballPosition].classList.remove('hidden');
+
+                // Mostra resultado
+                if (data.ganhou) {
+                    resultEl.innerHTML = `<span class="win">🎉 GANHOU! R$ ${data.winAmount.toFixed(2)}</span>`;
+                } else {
+                    resultEl.innerHTML = `<span class="lose">😢 ERROU! A bolinha estava no copo ${ballPosition + 1}</span>`;
+                }
+
+                // Mantém a possibilidade de jogar novamente
+                infoEl.innerText = 'Clique em APOSTAR para jogar novamente';
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao processar jogada');
+                resetGame();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRASH - MEGABET777</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #1a0000, #3a0000);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #ffd700;
+        }
+        .logo { font-size: 2rem; font-weight: bold; color: #ffd700; }
+        .balance { background: #000; border: 2px solid #ffd700; border-radius: 50px; padding: 10px 30px; color: #ffd700; font-weight: 700; }
+        .game-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background: rgba(0,0,0,0.7);
+            border: 3px solid #ffd700;
+            border-radius: 30px;
+            text-align: center;
+        }
+        h1 { color: #ffd700; font-size: 3rem; margin-bottom: 20px; }
+        .multiplier-box {
+            background: #1a1a1a;
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .multiplier-value {
+            font-size: 6rem;
+            font-weight: 800;
+            color: #ffd700;
+            transition: all 0.1s;
+        }
+        .plane {
+            font-size: 3rem;
+            position: absolute;
+            left: -50px;
+            bottom: 20px;
+            animation: fly 4s linear infinite;
+        }
+        @keyframes fly {
+            from { left: -50px; }
+            to { left: 100%; }
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        input {
+            padding: 15px;
+            width: 150px;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            background: transparent;
+            color: #fff;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        button {
+            padding: 15px 30px;
+            background: #ffd700;
+            border: none;
+            border-radius: 50px;
+            color: #1a0000;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .info {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: #ffd700;
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">✈️ CRASH</div>
+        <div class="balance" id="balance">R$ 0,00</div>
+    </div>
+    <div class="game-container">
+        <div class="multiplier-box">
+            <div class="multiplier-value" id="multiplier">1.00</div>
+            <div class="plane" id="plane">✈️</div>
+        </div>
+        <div class="info" id="info">
+            Aposte e retire antes do avião cair!
+        </div>
+        <div class="controls" id="controls">
+            <input type="number" id="betAmount" min="5" value="10" step="5">
+            <button id="startBtn" onclick="iniciarJogo()">APOSTAR</button>
+            <button id="cashoutBtn" onclick="sacar()" style="display: none;">RETIRAR</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '/login.html';
+
+        let currentGameId = null;
+        let interval = null;
+        let multiplier = 1.0;
+        let gameActive = false;
+        const multiplierEl = document.getElementById('multiplier');
+        const startBtn = document.getElementById('startBtn');
+        const cashoutBtn = document.getElementById('cashoutBtn');
+        const infoDiv = document.getElementById('info');
+        const betInput = document.getElementById('betAmount');
+
+        async function atualizarSaldo() {
+            const res = await fetch(`/api/user/${user.id}/balance`);
+            const data = await res.json();
+            user.balance = data.balance;
+            user.bonus_balance = data.bonus_balance;
+            document.getElementById('balance').innerText = `R$ ${(data.balance + data.bonus_balance).toFixed(2)}`;
+        }
+        atualizarSaldo();
+
+        async function iniciarJogo() {
+            const bet = parseFloat(betInput.value);
+            if (bet < 5) { alert('Aposta mínima: R$5'); return; }
+
+            const res = await fetch('/api/game/crash', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id, betAmount: bet, action: 'start' })
+            });
+            const data = await res.json();
+            if (!res.ok) { alert(data.error); return; }
+
+            currentGameId = data.gameId;
+            gameActive = true;
+            multiplier = 1.0;
+            multiplierEl.innerText = '1.00';
+            startBtn.style.display = 'none';
+            cashoutBtn.style.display = 'inline-block';
+            infoDiv.innerText = 'Avião decolando...';
+
+            interval = setInterval(async () => {
+                if (!gameActive) return;
+                multiplier += 0.01;
+                multiplierEl.innerText = multiplier.toFixed(2);
+            }, 100);
+        }
+
+        async function sacar() {
+            if (!gameActive || !currentGameId) return;
+            clearInterval(interval);
+            gameActive = false;
+
+            const res = await fetch('/api/game/crash', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id, betAmount: parseFloat(betInput.value), action: 'cashout', gameId: currentGameId })
+            });
+            const data = await res.json();
+            if (!res.ok) { alert(data.error); gameActive = true; return; }
+
+            if (data.crashed) {
+                infoDiv.innerText = data.message;
+                multiplierEl.innerText = data.crashPoint.toFixed(2);
+            } else {
+                infoDiv.innerText = data.message;
+                multiplierEl.innerText = data.multiplier.toFixed(2);
+                atualizarSaldo();
+            }
+            startBtn.style.display = 'inline-block';
+            cashoutBtn.style.display = 'none';
+            currentGameId = null;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depósito - MEGABET777</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #1a0000, #4a0000);
+            color: #ffd700;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(0,0,0,0.85);
+            border: 3px solid #ffd700;
+            border-radius: 40px;
+            padding: 40px;
+            width: 500px;
+            max-width: 90%;
+            text-align: center;
+        }
+        h1 { font-size: 2.5rem; margin-bottom: 20px; }
+        .pix-info {
+            background: rgba(255,215,0,0.1);
+            border: 1px solid #ffd700;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .pix-key {
+            background: #000;
+            padding: 15px;
+            border-radius: 50px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            word-break: break-all;
+        }
+        .qrcode {
+            margin: 20px auto;
+            max-width: 250px;
+        }
+        .qrcode img { width: 100%; border-radius: 10px; }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            background: transparent;
+            color: #ffd700;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        button {
+            background: #ffd700;
+            color: #1a0000;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+        button:hover { background: #ffa500; transform: scale(1.02); }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .success { background: rgba(0,255,0,0.2); border: 1px solid #0f0; color: #0f0; }
+        .error { background: rgba(255,0,0,0.2); border: 1px solid #f00; color: #f00; }
+        .warning { background: rgba(255,165,0,0.2); border: 1px solid orange; color: orange; }
+        .back-link { margin-top: 20px; display: block; color: #ffd700; text-decoration: none; }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-qrcode"></i> DEPÓSITO</h1>
+        <div id="pixInfo" class="pix-info" style="display: none;">
+            <p>Escaneie o QR Code ou copie a chave PIX abaixo:</p>
+            <div id="qrcode" class="qrcode"></div>
+            <div id="pixKey" class="pix-key"></div>
+        </div>
+        <input type="number" id="amount" placeholder="Valor (R$)" min="5" step="5" value="50">
+        <button onclick="solicitarDeposito()">GERAR PIX</button>
+        <div id="message" class="message"></div>
+        <a href="/dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Voltar</a>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '/login.html';
+
+        async function solicitarDeposito() {
+            const amount = document.getElementById('amount').value;
+            const msgDiv = document.getElementById('message');
+            const pixInfo = document.getElementById('pixInfo');
+
+            if (amount < 5) {
+                msgDiv.className = 'message error';
+                msgDiv.innerText = 'Valor mínimo: R$5';
+                return;
+            }
+
+            if (!user.name || !user.email) {
+                msgDiv.className = 'message error';
+                msgDiv.innerText = 'Dados do usuário incompletos. Faça login novamente.';
+                return;
+            }
+
+            const phone = user.phone || '11999999999';
+            if (!user.phone) {
+                msgDiv.className = 'message warning';
+                msgDiv.innerText = 'Telefone não cadastrado. Usaremos um número padrão.';
+            }
+
+            try {
+                const response = await fetch('/api/cashinpay/deposit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        amount: parseFloat(amount),
+                        customerName: user.name,
+                        customerEmail: user.email,
+                        customerPhone: phone
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Exibe a imagem do QR Code (já vem em base64)
+                    document.getElementById('qrcode').innerHTML = `<img src="${data.qrCodeImage}" alt="QR Code PIX">`;
+                    // Exibe o código copia e cola
+                    document.getElementById('pixKey').innerText = data.copyPaste;
+                    pixInfo.style.display = 'block';
+                    msgDiv.className = 'message success';
+                    msgDiv.innerText = 'Pagamento gerado! Escaneie ou copie o código.';
+                } else {
+                    msgDiv.className = 'message error';
+                    msgDiv.innerText = data.error || 'Erro ao gerar pagamento';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                msgDiv.className = 'message error';
+                msgDiv.innerText = 'Erro de conexão com o servidor';
+            }
+        }
+    </script>
+</body>
+</html>

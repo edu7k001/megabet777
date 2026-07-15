@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortune Mouse - MEGABET777</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #8b1e1e, #4a0c0c);
+            color: #ffd700;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0,0,0,0.7);
+            border-bottom: 3px solid #ffd700;
+        }
+        .logo { font-size: 2rem; font-weight: bold; color: #ffd700; }
+        .balance { background: #000; border: 2px solid #ffd700; border-radius: 50px; padding: 10px 25px; color: #ffd700; font-weight: bold; }
+        .logout-btn { padding: 10px 25px; background: transparent; border: 2px solid #ffd700; border-radius: 50px; color: #ffd700; cursor: pointer; }
+        .logout-btn:hover { background: #ffd700; color: #1a0000; }
+        .game-container { max-width: 800px; margin: 30px auto; padding: 30px; background: rgba(0,0,0,0.7); border: 3px solid #ffd700; border-radius: 40px; text-align: center; }
+        h2 { color: #ffd700; font-size: 2.5rem; margin-bottom: 20px; }
+        .reels-container { background: linear-gradient(145deg, #2a1f1f, #1a1212); border: 3px solid #ffd700; border-radius: 30px; padding: 30px; margin: 30px 0; }
+        .reels { display: flex; justify-content: center; gap: 15px; }
+        .reel { width: 100px; height: 300px; background: linear-gradient(145deg, #2a2a2a, #1a1a1a); border: 2px solid #ffd700; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px 0; }
+        .reel-symbol { font-size: 3rem; height: 100px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .reel-symbol.win-highlight { animation: winPulse 0.5s infinite; }
+        @keyframes winPulse { 0%,100% { transform: scale(1); text-shadow: 0 0 20px gold; } 50% { transform: scale(1.2); text-shadow: 0 0 40px gold; } }
+        .reel.spinning .reel-symbol { animation: spin 0.1s infinite linear; }
+        @keyframes spin { 0% { transform: translateY(0); } 100% { transform: translateY(30px); } }
+        .bet-controls { display: flex; gap: 15px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .bet-input { padding: 15px 20px; border: 2px solid #ffd700; border-radius: 50px; background: rgba(0,0,0,0.3); color: white; width: 150px; font-size: 1.2rem; text-align: center; }
+        .play-btn { padding: 15px 40px; background: linear-gradient(135deg, #ffd700, #ffa500); border: none; border-radius: 50px; color: #1a0000; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .play-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 30px #ffd700; }
+        .play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result-box { margin-top: 20px; padding: 15px; border-radius: 15px; font-size: 1.5rem; font-weight: bold; }
+        .win { background: rgba(0,255,0,0.2); border: 2px solid #00ff00; color: #00ff00; }
+        .lose { background: rgba(255,0,0,0.2); border: 2px solid #ff0000; color: #ff0000; }
+        .hidden { display: none; }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🐭 FORTUNE MOUSE</div>
+        <div class="balance" id="balance">R$ 0,00</div>
+        <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+    <div class="game-container">
+        <div class="reels-container">
+            <div class="reels" id="reels">
+                <div class="reel" id="reel0">
+                    <div class="reel-symbol" id="reel0-sym0">🐭</div>
+                    <div class="reel-symbol" id="reel0-sym1">🪙</div>
+                    <div class="reel-symbol" id="reel0-sym2">🧧</div>
+                </div>
+                <div class="reel" id="reel1">
+                    <div class="reel-symbol" id="reel1-sym0">🐭</div>
+                    <div class="reel-symbol" id="reel1-sym1">🪙</div>
+                    <div class="reel-symbol" id="reel1-sym2">🧧</div>
+                </div>
+                <div class="reel" id="reel2">
+                    <div class="reel-symbol" id="reel2-sym0">🐭</div>
+                    <div class="reel-symbol" id="reel2-sym1">🪙</div>
+                    <div class="reel-symbol" id="reel2-sym2">🧧</div>
+                </div>
+            </div>
+        </div>
+        <div class="bet-controls">
+            <input type="number" id="betAmount" class="bet-input" min="5" value="10" step="5">
+            <button class="play-btn" id="spinBtn" onclick="spin()">GIRAR</button>
+        </div>
+        <div id="result" class="result-box hidden"></div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '/login.html';
+
+        let spinning = false;
+        const balanceEl = document.getElementById('balance');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultEl = document.getElementById('result');
+        const betInput = document.getElementById('betAmount');
+        const reels = document.querySelectorAll('.reel');
+        const reelSymbols = document.querySelectorAll('.reel-symbol');
+
+        async function updateBalance() {
+            try {
+                const res = await fetch(`/api/user/${user.id}/balance`);
+                const data = await res.json();
+                user.balance = data.balance || 0;
+                user.bonus_balance = data.bonus_balance || 0;
+                balanceEl.innerText = `R$ ${(user.balance + user.bonus_balance).toFixed(2)}`;
+            } catch (e) {
+                console.error('Erro ao atualizar saldo', e);
+                balanceEl.innerText = 'R$ 0,00';
+            }
+        }
+        updateBalance();
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        function startSpinAnimation() {
+            reels.forEach(r => r.classList.add('spinning'));
+        }
+        function stopSpinAnimation() {
+            reels.forEach(r => r.classList.remove('spinning'));
+        }
+        function removeHighlights() {
+            reelSymbols.forEach(s => s.classList.remove('win-highlight'));
+        }
+        function updateReels(symbolsMatrix) {
+            if (!symbolsMatrix || symbolsMatrix.length < 3) return;
+            for (let r = 0; r < 3; r++) {
+                for (let s = 0; s < 3; s++) {
+                    const el = document.getElementById(`reel${r}-sym${s}`);
+                    if (el) el.innerText = symbolsMatrix[r][s] || '❓';
+                }
+            }
+        }
+
+        async function spin() {
+            if (spinning) return;
+            const bet = parseFloat(betInput.value);
+            if (bet < 5) { alert('Aposta mínima R$5'); return; }
+            const total = (user.balance || 0) + (user.bonus_balance || 0);
+            if (total < bet) { alert('Saldo insuficiente'); return; }
+
+            spinning = true;
+            spinBtn.disabled = true;
+            resultEl.classList.add('hidden');
+            removeHighlights();
+            startSpinAnimation();
+
+            try {
+                // ROTA CORRETA: fortune-mouse
+                const res = await fetch('/api/game/fortune-mouse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id, betAmount: bet })
+                });
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`Erro ${res.status}: ${errorText}`);
+                }
+                const data = await res.json();
+                console.log('Resposta da API:', data);
+
+                setTimeout(() => {
+                    stopSpinAnimation();
+
+                    const symbols = data.result || data.symbols || data.reels || null;
+                    if (symbols) {
+                        updateReels(symbols);
+                    } else {
+                        console.warn('Nenhum símbolo na resposta', data);
+                    }
+
+                    const newBalance = data.newBalance ?? data.balance ?? user.balance;
+                    user.balance = newBalance;
+                    balanceEl.innerText = `R$ ${newBalance.toFixed(2)}`;
+
+                    const win = data.winAmount ?? data.win ?? 0;
+                    const msg = data.message || (win > 0 ? `🎉 Ganhou R$ ${win.toFixed(2)}!` : `😢 Perdeu R$ ${bet.toFixed(2)}`);
+                    resultEl.classList.remove('hidden', 'win', 'lose');
+                    resultEl.classList.add(win > 0 ? 'win' : 'lose');
+                    resultEl.innerHTML = msg;
+
+                    if (win > 0) {
+                        reelSymbols.forEach(s => s.classList.add('win-highlight'));
+                        for (let i = 0; i < 30; i++) setTimeout(createConfetti, i * 20);
+                    }
+
+                    spinning = false;
+                    spinBtn.disabled = false;
+                }, 1000);
+            } catch (error) {
+                stopSpinAnimation();
+                console.error('Erro na jogada:', error);
+                alert('Erro ao processar: ' + error.message);
+                spinning = false;
+                spinBtn.disabled = false;
+            }
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = '8px';
+            confetti.style.height = '8px';
+            confetti.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-10px';
+            confetti.style.zIndex = '9999';
+            confetti.style.animation = `fall ${Math.random()*2+2}s linear`;
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 5000);
+        }
+        if (!document.querySelector('#confetti-style')) {
+            const style = document.createElement('style');
+            style.id = 'confetti-style';
+            style.innerHTML = `@keyframes fall { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(100vh) rotate(720deg); } }`;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>

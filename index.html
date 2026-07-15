@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGABET777 – Casa de Apostas Chinesa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #1a0000;
+            color: #ffd700;
+            overflow-x: hidden;
+        }
+        .lanterna {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 80px;
+            background: linear-gradient(145deg, #c49a1f, #ffd700);
+            border-radius: 25px 25px 5px 5px;
+            box-shadow: 0 0 20px #ffd700;
+            z-index: 100;
+            animation: balanco 3s infinite;
+        }
+        .lanterna::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 50%;
+        }
+        .lanterna::after {
+            content: '福';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            color: #8b0000;
+            font-weight: bold;
+        }
+        .lanterna.dir { left: auto; right: 20px; }
+        @keyframes balanco {
+            0%,100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #ffd700;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo i { font-size: 3rem; color: #ffd700; }
+        .logo h1 { font-size: 2.5rem; background: linear-gradient(45deg, #ffd700, #ffa500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1rem;
+        }
+        .nav a:hover { color: #ffd700; }
+        .btn-login {
+            background: #ffd700;
+            color: #1a0000;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 5%;
+            min-height: 70vh;
+        }
+        .hero-content h2 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+        }
+        .hero-content h2 span { color: #ffd700; border-bottom: 3px solid #ffd700; }
+        .hero-content p { font-size: 1.2rem; margin: 20px 0; color: #fff; }
+        .hero-buttons { display: flex; gap: 20px; }
+        .btn-primary {
+            background: #ffd700;
+            color: #1a0000;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .hero-image i { font-size: 20rem; color: #ffd700; opacity: 0.6; animation: flutuar 4s infinite; }
+        @keyframes flutuar {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            padding: 40px;
+            background: rgba(0,0,0,0.7);
+            border-top: 2px solid #ffd700;
+            border-bottom: 2px solid #ffd700;
+        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: bold; color: #ffd700; }
+        .stat-label { color: #fff; }
+        .games {
+            padding: 60px 5%;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #ffd700;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .game-card {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ffd700;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .game-card:hover { transform: translateY(-10px); box-shadow: 0 20px 30px rgba(255,215,0,0.3); }
+        .game-icon { font-size: 5rem; }
+        .game-name { font-size: 1.5rem; color: #ffd700; }
+        .footer {
+            background: #0a0000;
+            padding: 30px;
+            text-align: center;
+            border-top: 2px solid #ffd700;
+        }
+        .footer a { color: #ffd700; text-decoration: none; margin: 0 15px; }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="lanterna"></div>
+    <div class="lanterna dir"></div>
+
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-dragon"></i>
+            <h1>MEGABET777</h1>
+        </div>
+        <div class="nav">
+            <a href="/">Início</a>
+            <a href="#">Jogos</a>
+            <a href="#">Promoções</a>
+            <a href="#">Suporte</a>
+            <a href="/login.html" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h2><span>SORTE & PROSPERIDADE</span><br>Bem-vindo ao MEGABET777</h2>
+            <p>A melhor experiência em jogos de cassino com temática oriental. Bônus exclusivos e saques rápidos.</p>
+            <div class="hero-buttons">
+                <a href="/register.html" class="btn-primary">🎁 GANHE BÔNUS</a>
+                <a href="#" class="btn-secondary">🎮 VER JOGOS</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-dragon"></i>
+        </div>
+    </section>
+
+    <div class="stats">
+        <div class="stat-item"><div class="stat-value">50+</div><div class="stat-label">Jogos</div></div>
+        <div class="stat-item"><div class="stat-value">10k+</div><div class="stat-label">Jogadores</div></div>
+        <div class="stat-item"><div class="stat-value">R$1M+</div><div class="stat-label">Prêmios</div></div>
+    </div>
+
+    <section class="games">
+        <h2 class="section-title">🎰 JOGOS POPULARES</h2>
+        <div class="games-grid">
+            <div class="game-card" onclick="location.href='/fortune-ox.html'">
+                <div class="game-icon">🐂</div>
+                <div class="game-name">FORTUNE OX</div>
+            </div>
+            <div class="game-card" onclick="location.href='/fortune-tiger.html'">
+                <div class="game-icon">🐅</div>
+                <div class="game-name">FORTUNE TIGER</div>
+            </div>
+            <div class="game-card" onclick="location.href='/fortune-mouse.html'">
+                <div class="game-icon">🐭</div>
+                <div class="game-name">FORTUNE MOUSE</div>
+            </div>
+            <div class="game-card" onclick="location.href='/mines.html'">
+                <div class="game-icon">💎</div>
+                <div class="game-name">TUMBLE</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <a href="#">Termos</a> | <a href="#">Privacidade</a> | <a href="#">Jogo Responsável</a>
+        <p style="color:#aaa; margin-top:20px;">© 2026 MEGABET777 – Todos os direitos reservados</p>
+    </footer>
+</body>
+</html>

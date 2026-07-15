@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - MEGABET777</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a0000, #4a0000);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #ffd700;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 2rem; font-weight: bold; color: #ffd700; }
+        .admin-info { display: flex; align-items: center; gap: 20px; }
+        .logout-btn {
+            padding: 10px 25px;
+            background: transparent;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            color: #ffd700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: #ffd700; color: #1a0000; }
+        .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 25px;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #ffd700;
+            border-radius: 50px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab:hover { background: rgba(255,215,0,0.2); }
+        .tab.active { background: #ffd700; color: #1a0000; font-weight: 600; }
+        .section {
+            display: none;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #ffd700;
+            border-radius: 20px;
+            padding: 25px;
+        }
+        .section.active { display: block; }
+        h2 { color: #ffd700; margin-bottom: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            color: #ffd700;
+            border-bottom: 2px solid #ffd700;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,215,0,0.2);
+        }
+        .btn {
+            padding: 6px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-success { background: #00c851; color: white; }
+        .btn-danger { background: #ff4444; color: white; }
+        .btn-warning { background: #ffbb33; color: black; }
+        .btn-primary { background: #ffd700; color: #1a0000; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ffd700;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .message.success { display: block; background: rgba(0,255,0,0.2); border: 1px solid #0f0; color: #0f0; }
+        .message.error { display: block; background: rgba(255,0,0,0.2); border: 1px solid #f00; color: #f00; }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+        }
+        .status-pending { background: rgba(255,165,0,0.2); border: 1px solid orange; color: orange; }
+        .status-active { background: rgba(0,255,0,0.2); border: 1px solid #0f0; color: #0f0; }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #1e1e1e;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid #ffd700;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #ffd700;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .modal h3 { color: #ffd700; margin-bottom: 20px; }
+    </style>
+    <link rel="stylesheet" href="/assets/theme.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">MEGABET777 ADMIN</div>
+        <div class="admin-info">
+            <span id="adminEmail"></span>
+            <button class="logout-btn" onclick="logout()">Sair</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('users')">👥 Usuários</button>
+            <button class="tab" onclick="showTab('deposits')">💰 Depósitos</button>
+            <button class="tab" onclick="showTab('withdraws')">💸 Saques</button>
+            <button class="tab" onclick="showTab('games')">🎮 Jogos</button>
+            <button class="tab" onclick="showTab('config')">⚙️ Config</button>
+            <button class="tab" onclick="showTab('prizes')">🏆 Prêmios</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="section active">
+            <h2>📊 Visão Geral</h2>
+            <p>Bem-vindo ao painel administrativo.</p>
+        </div>
+
+        <!-- Usuários -->
+        <div id="users" class="section">
+            <h2>👥 Usuários</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Saldo</th>
+                        <th>Bônus</th>
+                        <th>Rollover</th>
+                        <th>RTP Ind.</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <tr><td colspan="9">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Depósitos -->
+        <div id="deposits" class="section">
+            <h2>💰 Depósitos Pendentes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuário</th>
+                        <th>Valor</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="depositsTable">
+                    <tr><td colspan="5">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Saques -->
+        <div id="withdraws" class="section">
+            <h2>💸 Saques Pendentes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuário</th>
+                        <th>Valor</th>
+                        <th>Chave PIX</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="withdrawsTable">
+                    <tr><td colspan="6">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Jogos (configurações) -->
+        <div id="games" class="section">
+            <h2>🎮 Configuração de Jogos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jogo</th>
+                        <th>RTP (%)</th>
+                        <th>Aposta Mín</th>
+                        <th>Aposta Máx</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="gamesTable">
+                    <tr><td colspan="6">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Configurações Gerais -->
+        <div id="config" class="section">
+            <h2>⚙️ Configurações Gerais</h2>
+            <div class="config-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap:20px;">
+                <!-- Configurações básicas -->
+                <div class="config-card" style="background: rgba(0,0,0,0.5); border:1px solid #ffd700; border-radius:20px; padding:20px;">
+                    <h3 style="color:#ffd700;">💰 Pagamentos</h3>
+                    <div class="form-group">
+                        <label>Chave PIX da Empresa</label>
+                        <input type="text" id="pix_key" placeholder="chave pix">
+                    </div>
+                    <div class="form-group">
+                        <label>Depósito Mínimo (R$)</label>
+                        <input type="number" id="min_deposit" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Bônus de Depósito (R$)</label>
+                        <input type="number" id="bonus_deposit" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Saque Mínimo (R$)</label>
+                        <input type="number" id="min_withdraw" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Saque Máximo (R$)</label>
+                        <input type="number" id="max_withdraw" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Taxa de Saque (%)</label>
+                        <input type="number" id="withdraw_fee" step="0.1" min="0" max="100">
+                    </div>
+                </div>
+
+                <!-- MINES -->
+                <div class="config-card" style="background: rgba(0,0,0,0.5); border:1px solid #ffd700; border-radius:20px; padding:20px;">
+                    <h3 style="color:#ffd700;">💣 MINES</h3>
+                    <div class="form-group">
+                        <label>Aposta Mínima (R$)</label>
+                        <input type="number" id="mines_min_bet" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Aposta Máxima (R$)</label>
+                        <input type="number" id="mines_max_bet" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Número de Bombas</label>
+                        <input type="number" id="mines_bomb_count" min="1" max="24">
+                    </div>
+                    <div class="form-group">
+                        <label>RTP (%)</label>
+                        <input type="number" id="mines_rtp" step="0.1" min="1" max="100">
+                    </div>
+                </div>
+
+                <!-- CRASH -->
+                <div class="config-card" style="background: rgba(0,0,0,0.5); border:1px solid #ffd700; border-radius:20px; padding:20px;">
+                    <h3 style="color:#ffd700;">✈️ CRASH</h3>
+                    <div class="form-group">
+                        <label>Aposta Mínima (R$)</label>
+                        <input type="number" id="crash_min_bet" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Aposta Máxima (R$)</label>
+                        <input type="number" id="crash_max_bet" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>RTP (%)</label>
+                        <input type="number" id="crash_rtp" step="0.1" min="1" max="100">
+                    </div>
+                </div>
+
+                <!-- ROLETA PREMIADA -->
+                <div class="config-card" style="background: rgba(0,0,0,0.5); border:1px solid #ffd700; border-radius:20px; padding:20px;">
+                    <h3 style="color:#ffd700;">🎡 ROLETA PREMIADA</h3>
+                    <div class="form-group">
+                        <label>Aposta Mínima (R$)</label>
+                        <input type="number" id="roulette_min_bet" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Aposta Máxima (R$)</label>
+                        <input type="number" id="roulette_max_bet" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>RTP (%)</label>
+                        <input type="number" id="roulette_rtp" step="0.1" min="1" max="100">
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-success" onclick="salvarConfig()" style="margin-top:20px; padding:15px 40px;">💾 Salvar Configurações</button>
+            <div id="configMessage" class="message"></div>
+        </div>
+
+        <!-- Prêmios Especiais -->
+        <div id="prizes" class="section">
+            <h2>🏆 Gerenciar Prêmios Especiais</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Tipo</th>
+                        <th>Valor (R$)</th>
+                        <th>Ícone</th>
+                        <th>Probabilidade</th>
+                        <th>Ativo</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="prizesTable">
+                    <tr><td colspan="9">Carregando...</td></tr>
+                </tbody>
+            </table>
+            <button class="btn btn-success" onclick="adicionarPremio()">➕ Adicionar Prêmio</button>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="fecharModal()">&times;</span>
+            <h3>Editar Usuário</h3>
+            <div id="userForm">
+                <!-- preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const admin = JSON.parse(localStorage.getItem('admin') || '{}');
+        if (!admin.email) window.location.href = '/admin-login.html';
+        document.getElementById('adminEmail').innerText = admin.email;
+
+        function getAuthHeader() {
+            return 'Basic ' + btoa('edu7k001@gmail.com:@Carlos1998');
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+            if (tab === 'users') loadUsers();
+            if (tab === 'deposits') loadDeposits();
+            if (tab === 'withdraws') loadWithdraws();
+            if (tab === 'games') loadGames();
+            if (tab === 'config') loadConfig();
+            if (tab === 'prizes') loadPrizes();
+        }
+
+        // ========== USUÁRIOS ==========
+        async function loadUsers() {
+            const res = await fetch('/api/admin/users', { headers: { 'Authorization': getAuthHeader() } });
+            const users = await res.json();
+            let html = '';
+            users.forEach(u => {
+                html += `<tr>
+                    <td>#${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>R$ ${(u.balance || 0).toFixed(2)}</td>
+                    <td>R$ ${(u.bonus_balance || 0).toFixed(2)}</td>
+                    <td>R$ ${(u.rollover || 0).toFixed(2)}</td>
+                    <td>${u.rtp_individual ? u.rtp_individual + '%' : 'Padrão'}</td>
+                    <td><span class="status-badge ${u.status === 'Ativo' ? 'status-active' : 'status-pending'}">${u.status}</span></td>
+                    <td><button class="btn btn-warning" onclick="editarUsuario(${u.id})">✏️ Editar</button></td>
+                </tr>`;
+            });
+            document.getElementById('usersTable').innerHTML = html || '<tr><td colspan="9">Nenhum usuário</td></tr>';
+        }
+
+        async function editarUsuario(id) {
+            const res = await fetch('/api/admin/users', { headers: { 'Authorization': getAuthHeader() } });
+            const users = await res.json();
+            const u = users.find(u => u.id == id);
+            const form = document.getElementById('userForm');
+            form.innerHTML = `
+                <div class="form-group">
+                    <label>Saldo Real (R$)</label>
+                    <input type="number" id="editBalance" value="${u.balance || 0}" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Saldo Bônus (R$)</label>
+                    <input type="number" id="editBonus" value="${u.bonus_balance || 0}" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Rollover Restante (R$)</label>
+                    <input type="number" id="editRollover" value="${u.rollover || 0}" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>RTP Individual (%)</label>
+                    <input type="number" id="editRTP" value="${u.rtp_individual || ''}" step="0.1" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editStatus">
+                        <option value="Ativo" ${u.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
+                        <option value="Pendente" ${u.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                        <option value="Bloqueado" ${u.status === 'Bloqueado' ? 'selected' : ''}>Bloqueado</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="atualizarUsuario(${u.id})">Salvar</button>
+            `;
+            document.getElementById('userModal').style.display = 'block';
+        }
+
+        async function atualizarUsuario(id) {
+            const data = {
+                balance: parseFloat(document.getElementById('editBalance').value),
+                bonus_balance: parseFloat(document.getElementById('editBonus').value),
+                rollover: parseFloat(document.getElementById('editRollover').value),
+                status: document.getElementById('editStatus').value,
+                rtp_individual: document.getElementById('editRTP').value ? parseFloat(document.getElementById('editRTP').value) : null
+            };
+            await fetch(`/api/admin/user/${id}/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthHeader() },
+                body: JSON.stringify(data)
+            });
+            alert('Usuário atualizado!');
+            fecharModal();
+            loadUsers();
+        }
+
+        function fecharModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        // ========== DEPÓSITOS ==========
+        async function loadDeposits() {
+            const res = await fetch('/api/admin/deposits', { headers: { 'Authorization': getAuthHeader() } });
+            const deposits = await res.json();
+            let html = '';
+            deposits.forEach(d => {
+                html += `<tr>
+                    <td>#${d.id}</td>
+                    <td>${d.name}</td>
+                    <td>R$ ${d.amount}</td>
+                    <td>${new Date(d.created_at).toLocaleString()}</td>
+                    <td><button class="btn btn-success" onclick="confirmarDeposito(${d.id})">✅</button></td>
+                </tr>`;
+            });
+            document.getElementById('depositsTable').innerHTML = html || '<tr><td colspan="5">Nenhum depósito pendente</td></tr>';
+        }
+
+        async function confirmarDeposito(id) {
+            const amount = prompt('Valor a creditar (R$):');
+            const bonus = prompt('Bônus (R$):');
+            if (!amount || !bonus) return;
+            await fetch(`/api/admin/confirm-deposit/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthHeader() },
+                body: JSON.stringify({ amount: parseFloat(amount), bonus: parseFloat(bonus) })
+            });
+            loadDeposits();
+        }
+
+        // ========== SAQUES ==========
+        async function loadWithdraws() {
+            const res = await fetch('/api/admin/withdraws', { headers: { 'Authorization': getAuthHeader() } });
+            const withdraws = await res.json();
+            let html = '';
+            withdraws.forEach(w => {
+                html += `<tr>
+                    <td>#${w.id}</td>
+                    <td>${w.name}</td>
+                    <td>R$ ${w.amount}</td>
+                    <td>${w.pix_key}</td>
+                    <td>${new Date(w.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-success" onclick="aprovarSaque(${w.id})">✅</button>
+                        <button class="btn btn-danger" onclick="rejeitarSaque(${w.id})">❌</button>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('withdrawsTable').innerHTML = html || '<tr><td colspan="6">Nenhum saque pendente</td></tr>';
+        }
+
+        async function aprovarSaque(id) {
+            await fetch(`/api/admin/approve-withdraw/${id}`, { method: 'POST', headers: { 'Authorization': getAuthHeader() } });
+            loadWithdraws();
+        }
+
+        async function rejeitarSaque(id) {
+            await fetch(`/api/admin/reject-withdraw/${id}`, { method: 'POST', headers: { 'Authorization': getAuthHeader() } });
+            loadWithdraws();
+        }
+
+        // ========== JOGOS ==========
+        async function loadGames() {
+            const res = await fetch('/api/admin/games', { headers: { 'Authorization': getAuthHeader() } });
+            const games = await res.json();
+            let html = '';
+            games.forEach(g => {
+                html += `<tr>
+                    <td>${g.name}</td>
+                    <td><input type="number" id="rtp_${g.name}" value="${g.rtp}" step="0.1" style="width:70px;"></td>
+                    <td><input type="number" id="min_${g.name}" value="${g.min_bet}" step="0.01" style="width:70px;"></td>
+                    <td><input type="number" id="max_${g.name}" value="${g.max_bet}" step="0.01" style="width:70px;"></td>
+                    <td>
+                        <select id="active_${g.name}">
+                            <option value="1" ${g.active ? 'selected' : ''}>Ativo</option>
+                            <option value="0" ${!g.active ? 'selected' : ''}>Inativo</option>
+                        </select>
+                    </td>
+                    <td><button class="btn btn-warning" onclick="salvarJogo('${g.name}')">Salvar</button></td>
+                </tr>`;
+            });
+            document.getElementById('gamesTable').innerHTML = html || '<tr><td colspan="6">Nenhum jogo</td></tr>';
+        }
+
+        async function salvarJogo(name) {
+            const rtp = document.getElementById(`rtp_${name}`).value;
+            const min = document.getElementById(`min_${name}`).value;
+            const max = document.getElementById(`max_${name}`).value;
+            const active = document.getElementById(`active_${name}`).value;
+            await fetch(`/api/admin/game/${name}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthHeader() },
+                body: JSON.stringify({ rtp, min_bet: parseFloat(min), max_bet: parseFloat(max), active: parseInt(active) })
+            });
+            alert('Jogo atualizado!');
+        }
+
+        // ========== CONFIGURAÇÕES ==========
+        async function loadConfig() {
+            const res = await fetch('/api/admin/config', { headers: { 'Authorization': getAuthHeader() } });
+            const config = await res.json();
+            document.getElementById('pix_key').value = config.pix_key || '';
+            document.getElementById('min_deposit').value = config.min_deposit || 20;
+            document.getElementById('bonus_deposit').value = config.bonus_deposit || 30;
+            document.getElementById('min_withdraw').value = config.min_withdraw || 50;
+            document.getElementById('max_withdraw').value = config.max_withdraw || 5000;
+            document.getElementById('withdraw_fee').value = config.withdraw_fee || 0;
+            document.getElementById('mines_min_bet').value = config.mines_min_bet || 5;
+            document.getElementById('mines_max_bet').value = config.mines_max_bet || 1000;
+            document.getElementById('mines_bomb_count').value = config.mines_bomb_count || 3;
+            document.getElementById('mines_rtp').value = config.mines_rtp || 97;
+            document.getElementById('crash_min_bet').value = config.crash_min_bet || 5;
+            document.getElementById('crash_max_bet').value = config.crash_max_bet || 1000;
+            document.getElementById('crash_rtp').value = config.crash_rtp || 95;
+            document.getElementById('roulette_min_bet').value = config.roulette_min_bet || 5;
+            document.getElementById('roulette_max_bet').value = config.roulette_max_bet || 1000;
+            document.getElementById('roulette_rtp').value = config.roulette_rtp || 95;
+        }
+
+        async function salvarConfig() {
+            const config = {
+                pix_key: document.getElementById('pix_key').value,
+                min_deposit: parseFloat(document.getElementById('min_deposit').value),
+                bonus_deposit: parseFloat(document.getElementById('bonus_deposit').value),
+                min_withdraw: parseFloat(document.getElementById('min_withdraw').value),
+                max_withdraw: parseFloat(document.getElementById('max_withdraw').value),
+                withdraw_fee: parseFloat(document.getElementById('withdraw_fee').value),
+                mines_min_bet: parseFloat(document.getElementById('mines_min_bet').value),
+                mines_max_bet: parseFloat(document.getElementById('mines_max_bet').value),
+                mines_bomb_count: parseInt(document.getElementById('mines_bomb_count').value),
+                mines_rtp: parseFloat(document.getElementById('mines_rtp').value),
+                crash_min_bet: parseFloat(document.getElementById('crash_min_bet').value),
+                crash_max_bet: parseFloat(document.getElementById('crash_max_bet').value),
+                crash_rtp: parseFloat(document.getElementById('crash_rtp').value),
+                roulette_min_bet: parseFloat(document.getElementById('roulette_min_bet').value),
+                roulette_max_bet: parseFloat(document.getElementById('roulette_max_bet').value),
+                roulette_rtp: parseFloat(document.getElementById('roulette_rtp').value)
+            };
+            const res = await fetch('/api/admin/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthHeader() },
+                body: JSON.stringify(config)
+            });
+            const data = await res.json();
+            const msg = document.getElementById('configMessage');
+            msg.className = data.success ? 'message success' : 'message error';
+            msg.innerHTML = data.success ? 'Configurações salvas!' : 'Erro ao salvar';
+            setTimeout(() => msg.innerHTML = '', 3000);
+        }
+
+        // ========== PRÊMIOS ==========
+        async function loadPrizes() {
+            const res = await fetch('/api/admin/prizes', { headers: { 'Authorization': getAuthHeader() } });
+            const prizes = await res.json();
+            let html = '';
+            prizes.forEach(p => {
+                html += `<tr>
+                    <td>#${p.id}</td>
+                    <td><input type="text" id="name_${p.id}" value="${p.name}" style="width:100px;"></td>
+                    <td><input type="text" id="desc_${p.id}" value="${p.description || ''}" style="width:150px;"></td>
+                    <td>
+                        <select id="type_${p.id}">
+                            <option value="money" ${p.type==='money'?'selected':''}>Dinheiro</option>
+                            <option value="item" ${p.type==='item'?'selected':''}>Item</option>
+                        </select>
+                    </td>
+                    <td><input type="number" id="value_${p.id}" value="${p.value}" step="0.01" style="width:80px;"></td>
+                    <td><input type="text" id="icon_${p.id}" value="${p.icon || ''}" style="width:60px;"></td>
+                    <td><input type="number" id="prob_${p.id}" value="${p.probability}" step="0.1" style="width:80px;"></td>
+                    <td><input type="checkbox" id="active_${p.id}" ${p.active ? 'checked' : ''}></td>
+                    <td>
+                        <button class="btn btn-success btn-sm" onclick="salvarPremio(${p.id})">Salvar</button>
+                        <button class="btn btn-danger btn-sm" onclick="excluirPremio(${p.id})">Excluir</button>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('prizesTable').innerHTML = html || '<tr><td colspan="9">Nenhum prêmio cadastrado</td></tr>';
+        }
+
+        async function salvarPremio(id) {
+            const data = {
+                name: document.getElementById(`name_${id}`).value,
+                description: document.getElementById(`desc_${id}`).value,
+                type: document.getElementById(`type_${id}`).value,
+                value: parseFloat(document.getElementById(`value_${id}`).value),
+                icon: document.getElementById(`icon_${id}`).value,
+                probability: parseFloat(document.getElementById(`prob_${id}`).value),
+                active: document.getElementById(`active_${id}`).checked ? 1 : 0
+            };
+            await fetch(`/api/admin/prize/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthHeader() },
+                body: JSON.stringify(data)
+            });
+            loadPrizes();
+        }
+
+        async function excluirPremio(id) {
+            if (!confirm('Excluir prêmio?')) return;
+            await fetch(`/api/admin/prize/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': getAuthHeader() }
+            });
+            loadPrizes();
+        }
+
+        function adicionarPremio() {
+            alert('Função de adicionar prêmio será implementada em breve. Por enquanto, use o banco de dados diretamente.');
+        }
+
+        function logout() {
+            localStorage.removeItem('admin');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
